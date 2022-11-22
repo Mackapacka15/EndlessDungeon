@@ -17,6 +17,7 @@ const int maxAdjTiles = 4;
 // Hur många tiles som behöver vara väggar för att byta sig själv 5x5
 const int maxAdjTiles2 = 16;
 
+// Hur många generationer av kartan ska genereras
 const int generations = 3;
 
 int grid[height][width];
@@ -33,7 +34,7 @@ int RandomTile(void)
         return TILE_FLOOR;
     }
 }
-
+// Skapar första versionen av kartan
 int InnitMap(void)
 {
     // Ger random values till alla platser i gridet
@@ -68,7 +69,7 @@ int InnitMap(void)
     }
     return 1;
 }
-
+// Genererar en ny generation av gridet
 void NewGeneration(void)
 {
     for (int y = 0; y < height; y++)
@@ -78,6 +79,7 @@ void NewGeneration(void)
             int adjTilesCount = 0;
             int adjTilesCount2 = 0;
 
+            // Kollar alla tiles i ett 3x3 grid
             for (int heightChange = -1; heightChange <= 1; heightChange++)
             {
                 for (int witdhChange = -1; witdhChange <= 1; witdhChange++)
@@ -88,6 +90,7 @@ void NewGeneration(void)
                     }
                 }
             }
+            // Kollar alla tiles i ett 5x5 grid
             for (int heightChange = -2; heightChange <= 2; heightChange++)
             {
                 for (int witdhChange = -2; witdhChange <= 2; witdhChange++)
@@ -98,7 +101,8 @@ void NewGeneration(void)
                     }
                 }
             }
-
+            // Finns det tillräckligt många väggar intill så byt sig själv till vägg
+            //Ändrar på temp grid för att beräkningar som kommer senare ska göras på samma grid
             if (adjTilesCount >= maxAdjTiles || adjTilesCount2 >= maxAdjTiles2)
             {
                 gridTemp[y][x] = TILE_WALL;
@@ -109,7 +113,7 @@ void NewGeneration(void)
             }
         }
     }
-
+    // Ser till så båda gridsen ser likadana ut
     for (int y = 1; y < height - 1; y++)
     {
         for (int x = 1; x < width - 1; x++)
@@ -118,7 +122,7 @@ void NewGeneration(void)
         }
     }
 }
-
+// Ritar ut kartan
 void PrintMap(void)
 {
     for (int x = 0; x < width; x++)
@@ -142,15 +146,16 @@ void PrintMap(void)
 int main(void)
 {
     srand(time(NULL));
-
+    // Skapar den ursprungliga kartan
     InnitMap();
-
+    // Skapar nya generationer av kartan
     for (int i = 0; i < generations; i++)
     {
         NewGeneration();
     }
-
+    // Ritar ut kartan
     PrintMap();
-    printf("Hello World \n");
+
+    // Avslutar programmet
     return 0;
 }
