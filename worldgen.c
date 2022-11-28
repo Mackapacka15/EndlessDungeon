@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "raylib.h"
 
 #define TILE_FLOOR 0
 #define TILE_WALL 1
@@ -171,7 +170,7 @@ int CreateDoors(void)
 
         if (tries > 10000)
         {
-            return -1; // failed to ever create entrance
+            return -1; // failed to ever create Entrance
         }
     }
     done = 0;
@@ -190,7 +189,7 @@ int CreateDoors(void)
 
         if (tries > 10000)
         {
-            return -1; // failed to ever create entrance
+            return -1; // failed to ever create Exit
         }
     }
 
