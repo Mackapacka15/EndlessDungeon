@@ -4,6 +4,7 @@
 #include "raylib.h"
 
 #include "worldgen.c"
+
 const int ScreenHeight = 900;
 const int ScreenWidth = 1600;
 
@@ -48,24 +49,62 @@ void NewWorld(Player_t *player)
 {
     player->position = _start;
 }
+int CheckCollisionWall(int gridX, int gridY, Vector2 nextPos)
+{
+    Rectangle player = {.x = nextPos.x, .y = nextPos.y, .height = tileSize, .width = tileSize};
+
+    for (int heightChange = -1; heightChange <= 1; heightChange++)
+    {
+        for (int witdhChange = -1; witdhChange <= 1; witdhChange++)
+        {
+            if (heightChange == 0 && witdhChange == 0)
+            {
+                continue;
+            }
+
+            if (grid[gridY + heightChange][gridX + witdhChange] == TILE_WALL)
+            {
+                Rectangle tile = {.height = tileSize, .width = tileSize, .y = (gridY + heightChange) * tileSize + 5, .x = (gridX + witdhChange) * tileSize + 5};
+
+                if (CheckCollisionRecs(tile, player))
+                {
+                    return 0;
+                }
+            }
+        }
+    }
+
+    return 1;
+}
 
 void UpdatePlayer(Player_t *player)
 {
+    int x = player->position.x / tileSize;
+    int y = player->position.y / tileSize;
+    // DrawRectangle(x * 10 - 10, y * 10 - 10, 30, 30, BROWN);
+
+    Vector2 nextPos = player->position;
+
     if (IsKeyDown(KEY_W))
     {
-        player->position.y += -1;
+        nextPos.y += -1;
     }
     if (IsKeyDown(KEY_S))
     {
-        player->position.y += 1;
+        nextPos.y += 1;
     }
     if (IsKeyDown(KEY_A))
     {
-        player->position.x += -1;
+        nextPos.x += -1;
     }
     if (IsKeyDown(KEY_D))
     {
-        player->position.x += 1;
+        nextPos.x += 1;
+    }
+
+    if (CheckCollisionWall(x, y, nextPos) == 1)
+    {
+        player->position = nextPos;
     }
 }
 
@@ -94,12 +133,12 @@ int main(void)
     NewWorld(&player);
     while (!WindowShouldClose())
     {
-        UpdatePlayer(&player);
         camera.target = player.position;
         ClearBackground(BLACK);
         BeginDrawing();
         BeginMode2D(camera);
         PrintMap();
+        UpdatePlayer(&player);
         DrawPlayer(&player);
         EndMode2D();
         EndDrawing();
