@@ -7,8 +7,8 @@
 #define TILE_START 2
 #define TILE_END 3
 
-const int width = 100;
-const int height = 100;
+const int _height = 90;
+const int _width = 160;
 
 // Chans att bli en vägg från början
 const int wallChanse = 31;
@@ -22,8 +22,38 @@ const int maxAdjTiles2 = 15;
 // Hur många generationer av kartan ska genereras
 const int generations = 5;
 
-int grid[height][width];
-int gridTemp[height][width];
+int grid[_height][_width];
+int gridTemp[_height][_width];
+
+Vector2 _start;
+Vector2 _end;
+
+// Ritar ut kartan i konsollen
+void Dev_PrintMap(void)
+{
+    for (int y = 0; y < _height; y++)
+    {
+        for (int x = 0; x < _width; x++)
+        {
+            switch (grid[y][x])
+            {
+            case TILE_WALL:
+                putchar('#');
+                break;
+            case TILE_FLOOR:
+                putchar('.');
+                break;
+            case TILE_START:
+                putchar('5');
+                break;
+            case TILE_END:
+                putchar('8');
+                break;
+            }
+        }
+        putchar('\n');
+    }
+}
 
 int RandomTile(void)
 {
@@ -40,43 +70,43 @@ int RandomTile(void)
 int InnitMap(void)
 {
     // Ger random values till alla platser i gridet
-    for (int y = 0; y < height; y++)
+    for (int y = 0; y < _height; y++)
     {
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < _width; x++)
         {
             grid[y][x] = RandomTile();
         }
     }
 
     // Gör så tem gridet är bara väggar
-    for (int y = 0; y < height; y++)
+    for (int y = 0; y < _height; y++)
     {
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < _width; x++)
         {
             gridTemp[y][x] = TILE_WALL;
         }
     }
 
     // Gör alla kanter till väggar
-    for (int y = 0; y < width; y++)
+    for (int y = 0; y < _height; y++)
     {
         grid[y][0] = TILE_WALL;
-        grid[y][width - 1] = TILE_WALL;
+        grid[y][_width - 1] = TILE_WALL;
     }
 
-    for (int x = 0; x < width; x++)
+    for (int x = 0; x < _width; x++)
     {
         grid[0][x] = TILE_WALL;
-        grid[height - 1][x] = TILE_WALL;
+        grid[_height - 1][x] = TILE_WALL;
     }
     return 1;
 }
 // Genererar en ny generation av gridet
 void NewGeneration(void)
 {
-    for (int y = 0; y < height; y++)
+    for (int y = 0; y < _height; y++)
     {
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < _width; x++)
         {
             int adjTilesCount = 0;
             int adjTilesCount2 = 0;
@@ -116,38 +146,12 @@ void NewGeneration(void)
         }
     }
     // Ser till så båda gridsen ser likadana ut
-    for (int y = 1; y < height - 1; y++)
+    for (int y = 1; y < _height - 1; y++)
     {
-        for (int x = 1; x < width - 1; x++)
+        for (int x = 1; x < _width - 1; x++)
         {
             grid[y][x] = gridTemp[y][x];
         }
-    }
-}
-// Ritar ut kartan
-void PrintMap(void)
-{
-    for (int x = 0; x < width; x++)
-    {
-        for (int y = 0; y < height; y++)
-        {
-            switch (grid[y][x])
-            {
-            case TILE_WALL:
-                putchar('#');
-                break;
-            case TILE_FLOOR:
-                putchar('.');
-                break;
-            case TILE_START:
-                putchar('5');
-                break;
-            case TILE_END:
-                putchar('8');
-                break;
-            }
-        }
-        putchar('\n');
     }
 }
 
@@ -159,16 +163,17 @@ int CreateDoors(void)
 
     while (done == 0)
     {
-        y = rand() % height;
-        x = rand() % width;
+        y = rand() % _height;
+        x = rand() % _width;
 
         if (grid[y][x] == TILE_FLOOR)
         {
             grid[y][x] = TILE_START;
+            _start = (Vector2){x * 10 + 5, y * 10 + 5};
             done = 1;
         }
 
-        if (tries > 10000)
+        if (tries > 1000)
         {
             return -1; // failed to ever create Entrance
         }
@@ -176,18 +181,19 @@ int CreateDoors(void)
     done = 0;
     while (done == 0)
     {
-        y = rand() % height;
-        x = rand() % width;
+        y = rand() % _width;
+        x = rand() % _height;
 
         if (grid[y][x] == TILE_FLOOR && grid[y][x] != TILE_START)
         {
             grid[y][x] = TILE_END;
+            _end = (Vector2){x * 10 + 5, y * 10 + 5};
             done = 1;
         }
 
         tries++;
 
-        if (tries > 10000)
+        if (tries > 1000)
         {
             return -1; // failed to ever create Exit
         }
@@ -197,7 +203,7 @@ int CreateDoors(void)
     return 1;
 }
 
-int main(void)
+int CreateWord(void)
 {
     srand(time(NULL));
 
@@ -218,10 +224,7 @@ int main(void)
 
     clock_t end = clock();
 
-    // Ritar ut kartan
-    PrintMap();
-
     printf("%f\n", ((double)end - start) / CLOCKS_PER_SEC);
-    // Avslutar programmet
-    return 0;
+    // Skickar tillbaka den färdiga kartan
+    return 1;
 }

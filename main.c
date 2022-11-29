@@ -3,226 +3,109 @@
 #include <time.h>
 #include "raylib.h"
 
-#define TILE_FLOOR 0
-#define TILE_WALL 1
-#define TILE_START 2
-#define TILE_END 3
+#include "worldgen.c"
+const int ScreenHeight = 900;
+const int ScreenWidth = 1600;
 
-const int width = 100;
-const int height = 100;
+const int tileSize = 10;
 
-// Chans att bli en vägg från början
-const int wallChanse = 31;
-
-// Hur många tiles som behöver vara väggar för att byta sig själv 3x3
-const int maxAdjTiles = 4;
-
-// Hur många tiles som behöver vara väggar för att byta sig själv 5x5
-const int maxAdjTiles2 = 15;
-
-// Hur många generationer av kartan ska genereras
-const int generations = 5;
-
-int grid[height][width];
-int gridTemp[height][width];
-
-int RandomTile(void)
+typedef struct Player_t
 {
-    if (rand() % 100 < wallChanse)
-    {
-        return TILE_WALL;
-    }
-    else
-    {
-        return TILE_FLOOR;
-    }
-}
-// Skapar första versionen av kartan
-int InnitMap(void)
-{
-    // Ger random values till alla platser i gridet
-    for (int y = 0; y < height; y++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-            grid[y][x] = RandomTile();
-        }
-    }
+    Vector2 position;
+    int dmg;
+    int hp;
+} Player_t;
 
-    // Gör så tem gridet är bara väggar
-    for (int y = 0; y < height; y++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-            gridTemp[y][x] = TILE_WALL;
-        }
-    }
-
-    // Gör alla kanter till väggar
-    for (int y = 0; y < width; y++)
-    {
-        grid[y][0] = TILE_WALL;
-        grid[y][width - 1] = TILE_WALL;
-    }
-
-    for (int x = 0; x < width; x++)
-    {
-        grid[0][x] = TILE_WALL;
-        grid[height - 1][x] = TILE_WALL;
-    }
-    return 1;
-}
-// Genererar en ny generation av gridet
-void NewGeneration(void)
-{
-    for (int y = 0; y < height; y++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-            int adjTilesCount = 0;
-            int adjTilesCount2 = 0;
-
-            // Kollar alla tiles i ett 3x3 grid
-            for (int heightChange = -1; heightChange <= 1; heightChange++)
-            {
-                for (int witdhChange = -1; witdhChange <= 1; witdhChange++)
-                {
-                    if (grid[y + heightChange][x + witdhChange] != TILE_FLOOR)
-                    {
-                        adjTilesCount++;
-                    }
-                }
-            }
-            // Kollar alla tiles i ett 5x5 grid
-            for (int heightChange = -2; heightChange <= 2; heightChange++)
-            {
-                for (int witdhChange = -2; witdhChange <= 2; witdhChange++)
-                {
-                    if (grid[y + heightChange][x + witdhChange] != TILE_FLOOR)
-                    {
-                        adjTilesCount2++;
-                    }
-                }
-            }
-            // Finns det tillräckligt många väggar intill så byt sig själv till vägg
-            //Ändrar på temp grid för att beräkningar som kommer senare ska göras på samma grid
-            if (adjTilesCount >= maxAdjTiles || adjTilesCount2 >= maxAdjTiles2)
-            {
-                gridTemp[y][x] = TILE_WALL;
-            }
-            else
-            {
-                gridTemp[y][x] = TILE_FLOOR;
-            }
-        }
-    }
-    // Ser till så båda gridsen ser likadana ut
-    for (int y = 1; y < height - 1; y++)
-    {
-        for (int x = 1; x < width - 1; x++)
-        {
-            grid[y][x] = gridTemp[y][x];
-        }
-    }
-}
-// Ritar ut kartan
 void PrintMap(void)
 {
-    for (int x = 0; x < width; x++)
+    for (int y = 0; y < _height; y++)
     {
-        for (int y = 0; y < height; y++)
+        for (int x = 0; x < _width; x++)
         {
-            switch (grid[y][x])
+            if (grid[y][x] == TILE_FLOOR)
             {
-            case TILE_WALL:
-                putchar('#');
-                break;
-            case TILE_FLOOR:
-                putchar('.');
-                break;
-            case TILE_START:
-                putchar('5');
-                break;
-            case TILE_END:
-                putchar('8');
-                break;
+                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
+            }
+            else if (grid[y][x] == TILE_END)
+            {
+                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, YELLOW);
+            }
+            else if (grid[y][x] == TILE_START)
+            {
+                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, ORANGE);
             }
         }
-        putchar('\n');
     }
 }
 
-int CreateDoors(void)
+void DrawPlayer(Player_t *player)
 {
-    int done = 0;
-    int x, y;
-    int tries;
+    DrawRectangle(player->position.x - 5, player->position.y - 5, 10, 10, BLUE);
+    DrawRectangle(player->position.x, player->position.y, 1, 1, RED);
+}
 
-    while (done == 0)
+void NewWorld(Player_t *player)
+{
+    player->position = _start;
+}
+
+void UpdatePlayer(Player_t *player)
+{
+    if (IsKeyDown(KEY_W))
     {
-        y = rand() % height;
-        x = rand() % width;
-
-        if (grid[y][x] == TILE_FLOOR)
-        {
-            grid[y][x] = TILE_START;
-            done = 1;
-        }
-
-        if (tries > 10000)
-        {
-            return -1; // failed to ever create entrance
-        }
+        player->position.y += -1;
     }
-    done = 0;
-    while (done == 0)
+    if (IsKeyDown(KEY_S))
     {
-        y = rand() % height;
-        x = rand() % width;
-
-        if (grid[y][x] == TILE_FLOOR && grid[y][x] != TILE_START)
-        {
-            grid[y][x] = TILE_END;
-            done = 1;
-        }
-
-        tries++;
-
-        if (tries > 10000)
-        {
-            return -1; // failed to ever create entrance
-        }
+        player->position.y += 1;
     }
-
-    printf("%d\n", tries);
-    return 1;
+    if (IsKeyDown(KEY_A))
+    {
+        player->position.x += -1;
+    }
+    if (IsKeyDown(KEY_D))
+    {
+        player->position.x += 1;
+    }
 }
 
 int main(void)
 {
-    srand(time(NULL));
+    Player_t player = {.dmg = 1, .hp = 100, .position = (Vector2){ScreenWidth / 2.0f, ScreenHeight / 2.0f}};
 
-    clock_t start = clock();
+    Camera2D camera = {0};
+    camera.offset = (Vector2){ScreenWidth / 2.0f, ScreenHeight / 2.0f};
+    camera.rotation = 0.0f;
+    camera.zoom = 2.5f;
+    camera.target = player.position;
 
-    // Skapar den ursprungliga kartan
-    InnitMap();
-    // Skapar nya generationer av kartan
-    for (int i = 0; i < generations; i++)
+    int status = CreateWord();
+    // Sert till så det finns en värld
+    while (status != 1)
     {
-        NewGeneration();
+        printf("%d\n", status);
+        status = CreateWord();
     }
-    int status = CreateDoors();
-    if (status == -1)
-    {
-        return 0;
-    }
-
-    clock_t end = clock();
+    SetTargetFPS(60);
+    InitWindow(ScreenWidth, ScreenHeight, "MineHero");
 
     // Ritar ut kartan
-    PrintMap();
+    // Dev_PrintMap();
+    NewWorld(&player);
+    while (!WindowShouldClose())
+    {
+        UpdatePlayer(&player);
+        camera.target = player.position;
+        ClearBackground(BLACK);
+        BeginDrawing();
+        BeginMode2D(camera);
+        PrintMap();
+        DrawPlayer(&player);
+        EndMode2D();
+        EndDrawing();
+    }
 
-    printf("%f\n", ((double)end - start) / CLOCKS_PER_SEC);
     // Avslutar programmet
+    CloseWindow();
     return 0;
 }
