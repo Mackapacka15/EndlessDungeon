@@ -1,11 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#define TILE_FLOOR 0
-#define TILE_WALL 1
-#define TILE_START 2
-#define TILE_END 3
+#include "common.h"
+typedef enum TileType_e
+{
+    TILE_FLOOR,
+    TILE_WALL,
+    TILE_START,
+    TILE_END,
+    TILE_BEDROCK
+} Tile_Type_e;
 
 const int _height = 90;
 const int _width = 160;
@@ -90,14 +91,14 @@ int InnitMap(void)
     // Gör alla kanter till väggar
     for (int y = 0; y < _height; y++)
     {
-        grid[y][0] = TILE_WALL;
-        grid[y][_width - 1] = TILE_WALL;
+        grid[y][0] = TILE_BEDROCK;
+        grid[y][_width - 1] = TILE_BEDROCK;
     }
 
     for (int x = 0; x < _width; x++)
     {
-        grid[0][x] = TILE_WALL;
-        grid[_height - 1][x] = TILE_WALL;
+        grid[0][x] = TILE_BEDROCK;
+        grid[_height - 1][x] = TILE_BEDROCK;
     }
     return 1;
 }
@@ -227,4 +228,26 @@ int CreateWord(void)
     printf("%f\n", ((double)end - start) / CLOCKS_PER_SEC);
     // Skickar tillbaka den färdiga kartan
     return 1;
+}
+
+void PrintMap(void)
+{
+    for (int y = 0; y < _height; y++)
+    {
+        for (int x = 0; x < _width; x++)
+        {
+            if (grid[y][x] == TILE_FLOOR)
+            {
+                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
+            }
+            else if (grid[y][x] == TILE_END)
+            {
+                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, YELLOW);
+            }
+            else if (grid[y][x] == TILE_START)
+            {
+                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, ORANGE);
+            }
+        }
+    }
 }

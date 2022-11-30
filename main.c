@@ -1,14 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include "raylib.h"
+#include "common.h"
+
+const int tileSize = 10;
 
 #include "worldgen.c"
+#include "player.c"
 
 const int ScreenHeight = 900;
 const int ScreenWidth = 1600;
 
-const int tileSize = 10;
 typedef enum
 {
     GameStateMainMenu,
@@ -17,71 +16,10 @@ typedef enum
 } Game_State_e;
 
 Game_State_e state = GameStateGame;
-typedef struct Player_t
-{
-    Vector2 position;
-    int dmg;
-    int hp;
-} Player_t;
-
-void PrintMap(void)
-{
-    for (int y = 0; y < _height; y++)
-    {
-        for (int x = 0; x < _width; x++)
-        {
-            if (grid[y][x] == TILE_FLOOR)
-            {
-                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
-            }
-            else if (grid[y][x] == TILE_END)
-            {
-                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, YELLOW);
-            }
-            else if (grid[y][x] == TILE_START)
-            {
-                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, ORANGE);
-            }
-        }
-    }
-}
-
-void DrawPlayer(Player_t *player)
-{
-    DrawRectangle(player->position.x - 5, player->position.y - 5, 10, 10, BLUE);
-    DrawRectangle(player->position.x, player->position.y, 1, 1, RED);
-}
 
 void NewWorld(Player_t *player)
 {
     player->position = _start;
-}
-int CheckCollisionWall(int gridX, int gridY, Vector2 nextPos)
-{
-    Rectangle player = {.x = nextPos.x, .y = nextPos.y, .height = tileSize, .width = tileSize};
-
-    for (int heightChange = -1; heightChange <= 1; heightChange++)
-    {
-        for (int witdhChange = -1; witdhChange <= 1; witdhChange++)
-        {
-            if (heightChange == 0 && witdhChange == 0)
-            {
-                continue;
-            }
-
-            if (grid[gridY + heightChange][gridX + witdhChange] == TILE_WALL)
-            {
-                Rectangle tile = {.height = tileSize, .width = tileSize, .y = (gridY + heightChange) * tileSize + 5, .x = (gridX + witdhChange) * tileSize + 5};
-
-                if (CheckCollisionRecs(tile, player))
-                {
-                    return 0;
-                }
-            }
-        }
-    }
-
-    return 1;
 }
 
 void LevelDone(Player_t *player)
@@ -92,39 +30,7 @@ void LevelDone(Player_t *player)
 
     if (CheckCollisionRecs(playerRec, exitRec))
     {
-        puts("Done\n");
         state = GameStateDead;
-    }
-}
-
-void UpdatePlayer(Player_t *player)
-{
-    int x = player->position.x / tileSize;
-    int y = player->position.y / tileSize;
-    // DrawRectangle(x * 10 - 10, y * 10 - 10, 30, 30, BROWN);
-
-    Vector2 nextPos = player->position;
-
-    if (IsKeyDown(KEY_W))
-    {
-        nextPos.y += -1;
-    }
-    if (IsKeyDown(KEY_S))
-    {
-        nextPos.y += 1;
-    }
-    if (IsKeyDown(KEY_A))
-    {
-        nextPos.x += -1;
-    }
-    if (IsKeyDown(KEY_D))
-    {
-        nextPos.x += 1;
-    }
-
-    if (CheckCollisionWall(x, y, nextPos) == 1)
-    {
-        player->position = nextPos;
     }
 }
 
@@ -153,7 +59,8 @@ int main(void)
     NewWorld(&player);
     while (!WindowShouldClose())
     {
-        //Update
+        // Update
+        clock_t updateStart = clock();
         switch (state)
         {
         case GameStateGame:
@@ -164,8 +71,9 @@ int main(void)
         default:
             break;
         }
-
-        //Draw
+        clock_t updateEnd = clock();
+        // Draw
+        clock_t drawStart = clock();
         BeginDrawing();
         ClearBackground(BLACK);
         BeginMode2D(camera);
@@ -181,7 +89,11 @@ int main(void)
         }
 
         EndMode2D();
+        clock_t drawEnd = clock();
         EndDrawing();
+
+        printf("Update time: %f\n", ((double)updateEnd - updateStart) / CLOCKS_PER_SEC);
+        printf("Draw time: %f\n", ((double)drawEnd - drawStart) / CLOCKS_PER_SEC);
     }
 
     // Avslutar programmet

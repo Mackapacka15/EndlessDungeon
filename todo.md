@@ -1,6 +1,6 @@
 Generate Map (Cellular Autoata Method) Done
-Spawn Entrance
-Spawn Exit
-Player can mine
+Spawn Entrance Done
+Spawn Exit Done
+Player can mine Done
 Player can find treassure
 Spawn monsters
