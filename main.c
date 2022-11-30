@@ -9,7 +9,14 @@ const int ScreenHeight = 900;
 const int ScreenWidth = 1600;
 
 const int tileSize = 10;
+typedef enum
+{
+    GameStateMainMenu,
+    GameStateGame,
+    GameStateDead,
+} Game_State_e;
 
+Game_State_e state = GameStateGame;
 typedef struct Player_t
 {
     Vector2 position;
@@ -77,6 +84,19 @@ int CheckCollisionWall(int gridX, int gridY, Vector2 nextPos)
     return 1;
 }
 
+void LevelDone(Player_t *player)
+{
+    Rectangle exitRec = {.height = tileSize, .width = tileSize, .y = _end.y, .x = _end.x};
+
+    Rectangle playerRec = {.x = player->position.x, .y = player->position.y, .height = tileSize, .width = tileSize};
+
+    if (CheckCollisionRecs(playerRec, exitRec))
+    {
+        puts("Done\n");
+        state = GameStateDead;
+    }
+}
+
 void UpdatePlayer(Player_t *player)
 {
     int x = player->position.x / tileSize;
@@ -133,13 +153,33 @@ int main(void)
     NewWorld(&player);
     while (!WindowShouldClose())
     {
-        camera.target = player.position;
-        ClearBackground(BLACK);
+        //Update
+        switch (state)
+        {
+        case GameStateGame:
+            camera.target = player.position;
+            LevelDone(&player);
+            UpdatePlayer(&player);
+            break;
+        default:
+            break;
+        }
+
+        //Draw
         BeginDrawing();
+        ClearBackground(BLACK);
         BeginMode2D(camera);
-        PrintMap();
-        UpdatePlayer(&player);
-        DrawPlayer(&player);
+        switch (state)
+        {
+        case GameStateGame:
+            PrintMap();
+            DrawPlayer(&player);
+            break;
+
+        default:
+            break;
+        }
+
         EndMode2D();
         EndDrawing();
     }
