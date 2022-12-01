@@ -4,23 +4,12 @@ const int tileSize = 10;
 
 #include "worldgen.c"
 #include "player.c"
+#include "menu.c"
 
 const int ScreenHeight = 900;
 const int ScreenWidth = 1600;
 
-typedef enum
-{
-    GameStateMainMenu,
-    GameStateGame,
-    GameStateDead,
-} Game_State_e;
-
 Game_State_e state = GameStateGame;
-
-void NewWorld(Player_t *player)
-{
-    player->position = _start;
-}
 
 void LevelDone(Player_t *player)
 {
@@ -30,8 +19,20 @@ void LevelDone(Player_t *player)
 
     if (CheckCollisionRecs(playerRec, exitRec))
     {
-        state = GameStateDead;
+        state = GameStateMenu;
     }
+}
+
+void NewWorld(Player_t *player)
+{
+    int status = CreateWord();
+    // Sert till så det finns en värld
+    while (status != 1)
+    {
+        printf("%d\n", status);
+        status = CreateWord();
+    }
+    player->position = _start;
 }
 
 int main(void)
@@ -43,30 +44,31 @@ int main(void)
     camera.rotation = 0.0f;
     camera.zoom = 2.5f;
     camera.target = player.position;
-
-    int status = CreateWord();
-    // Sert till så det finns en värld
-    while (status != 1)
-    {
-        printf("%d\n", status);
-        status = CreateWord();
-    }
+    NewWorld(&player);
     SetTargetFPS(60);
     InitWindow(ScreenWidth, ScreenHeight, "MineHero");
 
     // Ritar ut kartan
     // Dev_PrintMap();
-    NewWorld(&player);
     while (!WindowShouldClose())
     {
         // Update
         clock_t updateStart = clock();
+
+        Vector2 mousePos = mousePos = GetScreenToWorld2D((Vector2){GetMouseX(), GetMouseY()}, camera);
         switch (state)
         {
         case GameStateGame:
             camera.target = player.position;
             LevelDone(&player);
             UpdatePlayer(&player);
+            break;
+        case GameStateMenu:
+            mousePos = GetScreenToWorld2D((Vector2){GetMouseX(), GetMouseY()}, camera);
+            break;
+        case GameStateInnitLevel:
+            NewWorld(&player);
+            state = GameStateGame;
             break;
         default:
             break;
@@ -83,7 +85,10 @@ int main(void)
             PrintMap();
             DrawPlayer(&player);
             break;
-
+        case GameStateMenu:
+            camera.target = (Vector2){0, 0};
+            state = DrawButton((Vector2){0, 0}, 150, 40, "Next Level", 20, mousePos, GameStateInnitLevel);
+            break;
         default:
             break;
         }
@@ -92,8 +97,8 @@ int main(void)
         clock_t drawEnd = clock();
         EndDrawing();
 
-        printf("Update time: %f\n", ((double)updateEnd - updateStart) / CLOCKS_PER_SEC);
-        printf("Draw time: %f\n", ((double)drawEnd - drawStart) / CLOCKS_PER_SEC);
+        // printf("Update time: %f\n", ((double)updateEnd - updateStart) / CLOCKS_PER_SEC);
+        // printf("Draw time: %f\n", ((double)drawEnd - drawStart) / CLOCKS_PER_SEC);
     }
 
     // Avslutar programmet

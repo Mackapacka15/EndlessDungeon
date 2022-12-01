@@ -3,6 +3,7 @@
     "time.h": "c",
     "common.h": "c",
     "raylib.h": "c",
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "__node_handle": "c"
   }
 }
