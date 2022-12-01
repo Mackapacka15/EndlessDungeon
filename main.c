@@ -1,4 +1,5 @@
 #include "common.h"
+#include "types.c"
 
 const int tileSize = 10;
 
@@ -9,7 +10,7 @@ const int tileSize = 10;
 const int ScreenHeight = 900;
 const int ScreenWidth = 1600;
 
-Game_State_e state = GameStateGame;
+Game_State_e state = GameStateMenu;
 
 void LevelDone(Player_t *player)
 {
@@ -87,7 +88,7 @@ int main(void)
             break;
         case GameStateMenu:
             camera.target = (Vector2){0, 0};
-            state = DrawButton((Vector2){0, 0}, 150, 40, "Next Level", 20, mousePos, GameStateInnitLevel);
+            UpdateAndDrawButtons(&player, &state, mousePos);
             break;
         default:
             break;

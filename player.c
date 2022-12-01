@@ -1,11 +1,5 @@
 #include "common.h"
 
-typedef struct Player_t
-{
-    Vector2 position;
-    int dmg;
-    int hp;
-} Player_t;
 
 void DrawPlayer(Player_t *player)
 {
