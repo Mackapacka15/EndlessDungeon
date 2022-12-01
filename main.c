@@ -1,5 +1,4 @@
 #include "common.h"
-#include "types.c"
 
 const int tileSize = 10;
 

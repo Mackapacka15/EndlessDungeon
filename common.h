@@ -5,5 +5,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include "raylib.h"
+#include "types.c"
 
 #endif
