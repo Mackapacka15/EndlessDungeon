@@ -1,15 +1,14 @@
 #include "common.h"
 
-
 void DrawPlayer(Player_t *player)
 {
-    DrawRectangle(player->position.x - 5, player->position.y - 5, 10, 10, BLUE);
+    DrawRectangle(player->position.x - (playerSize / 2), player->position.y - (playerSize / 2), playerSize, playerSize, BLUE);
     DrawRectangle(player->position.x, player->position.y, 1, 1, RED);
 }
 
 int CheckCollisionWall(int gridX, int gridY, Vector2 nextPos)
 {
-    Rectangle player = {.x = nextPos.x, .y = nextPos.y, .height = tileSize, .width = tileSize};
+    Rectangle player = {.x = nextPos.x, .y = nextPos.y, .height = playerSize, .width = playerSize};
 
     for (int heightChange = -1; heightChange <= 1; heightChange++)
     {
@@ -21,9 +20,9 @@ int CheckCollisionWall(int gridX, int gridY, Vector2 nextPos)
                 continue;
             }
 
-            if (grid[gridY + heightChange][gridX + witdhChange] == TILE_WALL || grid[gridY + heightChange][gridX + witdhChange] == TILE_BEDROCK)
+            if (tileGrid[gridY + heightChange][gridX + witdhChange].type == TILE_WALL || tileGrid[gridY + heightChange][gridX + witdhChange].type == TILE_BEDROCK)
             {
-                Rectangle tile = {.height = tileSize, .width = tileSize, .y = (gridY + heightChange) * tileSize + 5, .x = (gridX + witdhChange) * tileSize + 5};
+                Rectangle tile = {.height = tileSize, .width = tileSize, .y = (gridY + heightChange) * tileSize + (playerSize / 2), .x = (gridX + witdhChange) * tileSize + (playerSize / 2)};
 
                 if (CheckCollisionRecs(tile, player))
                 {
@@ -38,9 +37,15 @@ int CheckCollisionWall(int gridX, int gridY, Vector2 nextPos)
 
 int MineBlock(int gridX, int gridY)
 {
-    if (grid[gridY][gridX] == TILE_WALL)
+    if (tileGrid[gridY][gridX].type == TILE_WALL)
     {
-        grid[gridY][gridX] = TILE_FLOOR;
+        tileGrid[gridY][gridX].hp -= 1;
+
+        if (tileGrid[gridY][gridX].hp == 0)
+        {
+            tileGrid[gridY][gridX].type = TILE_FLOOR;
+        }
+
         return 1;
     }
     return 0;
@@ -57,26 +62,26 @@ void UpdatePlayer(Player_t *player)
 
     if (IsKeyDown(KEY_W))
     {
-        nextPos.y += -1;
+        nextPos.y += -2;
         dir = 'u';
     }
     if (IsKeyDown(KEY_S))
     {
-        nextPos.y += 1;
+        nextPos.y += 2;
         dir = 'd';
     }
     if (IsKeyDown(KEY_A))
     {
-        nextPos.x += -1;
+        nextPos.x += -2;
         dir = 'l';
     }
     if (IsKeyDown(KEY_D))
     {
-        nextPos.x += 1;
+        nextPos.x += 2;
         dir = 'r';
     }
 
-    if (IsKeyDown(KEY_SPACE))
+    if (IsKeyPressed(KEY_SPACE))
     {
         switch (dir)
         {

@@ -1,12 +1,4 @@
 #include "common.h"
-typedef enum TileType_e
-{
-    TILE_FLOOR,
-    TILE_WALL,
-    TILE_START,
-    TILE_END,
-    TILE_BEDROCK
-} Tile_Type_e;
 
 const int _height = 90;
 const int _width = 160;
@@ -25,6 +17,8 @@ const int generations = 5;
 
 int grid[_height][_width];
 int gridTemp[_height][_width];
+
+Tile_t tileGrid[_height][_width];
 
 Vector2 _start;
 Vector2 _end;
@@ -146,7 +140,7 @@ void NewGeneration(void)
             }
         }
     }
-    // Ser till så båda gridsen ser likadana ut
+    // Ändrar main grid till ny generation
     for (int y = 1; y < _height - 1; y++)
     {
         for (int x = 1; x < _width - 1; x++)
@@ -169,13 +163,15 @@ int CreateDoors(void)
 
         if (grid[y][x] == TILE_FLOOR)
         {
+            puts("Door");
             grid[y][x] = TILE_START;
-            _start = (Vector2){x * 10 + 5, y * 10 + 5};
+            _start = (Vector2){x * tileSize + (tileSize / 2), y * tileSize + (tileSize / 2)};
             done = 1;
         }
 
         if (tries > 1000)
         {
+            puts("Fail");
             return -1; // failed to ever create Entrance
         }
     }
@@ -188,7 +184,7 @@ int CreateDoors(void)
         if (grid[y][x] == TILE_FLOOR && grid[y][x] != TILE_START)
         {
             grid[y][x] = TILE_END;
-            _end = (Vector2){x * 10 + 5, y * 10 + 5};
+            _end = (Vector2){x * tileSize + (tileSize / 2), y * tileSize + (tileSize / 2)};
             done = 1;
         }
 
@@ -204,6 +200,87 @@ int CreateDoors(void)
     return 1;
 }
 
+void CreateTileGrid()
+{
+    for (int y = 0; y < _height; y++)
+    {
+        for (int x = 0; x < _width; x++)
+        {
+            int hp = 0;
+
+            switch (grid[y][x])
+            {
+            case TILE_FLOOR:
+                hp = 0;
+                break;
+            case TILE_WALL:
+                hp = 10;
+                break;
+            default:
+                hp = -1;
+                break;
+            }
+
+            tileGrid[y][x] = (Tile_t){.type = grid[y][x], .hp = hp};
+        }
+    }
+}
+
+void CheckNeighbours(void)
+{
+    for (int y = 0; y < _height; y++)
+    {
+        for (int x = 0; x < _width; x++)
+        {
+            tileGrid[y][x].neighbours = 0;
+
+            if (tileGrid[y - 1][x - 1].type == TILE_WALL || tileGrid[y - 1][x - 1].type == TILE_BEDROCK)
+            {
+                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b10000000;
+            }
+
+            if (tileGrid[y - 1][x].type == TILE_WALL || tileGrid[y - 1][x].type == TILE_BEDROCK)
+            {
+                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b01000000;
+            }
+
+            if (tileGrid[y - 1][x + 1].type == TILE_WALL || tileGrid[y - 1][x + 1].type == TILE_BEDROCK)
+            {
+                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00100000;
+            }
+
+            if (tileGrid[y][x - 1].type == TILE_WALL || tileGrid[y][x - 1].type == TILE_BEDROCK)
+            {
+                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00010000;
+            }
+
+            if (tileGrid[y][x + 1].type == TILE_WALL || tileGrid[y][x + 1].type == TILE_BEDROCK)
+            {
+                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00001000;
+            }
+
+            if (tileGrid[y + 1][x - 1].type == TILE_WALL || tileGrid[y + 1][x - 1].type == TILE_BEDROCK)
+            {
+                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00000100;
+            }
+
+            if (tileGrid[y + 1][x].type == TILE_WALL || tileGrid[y + 1][x].type == TILE_BEDROCK)
+            {
+                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00000010;
+            }
+
+            if (tileGrid[y + 1][x + 1].type == TILE_WALL || tileGrid[y + 1][x + 1].type == TILE_BEDROCK)
+            {
+                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00000001;
+            }
+
+            // 0b00110000
+            // 0b11010000
+            // 0b11100000
+        }
+    }
+}
+
 int CreateWord(void)
 {
     srand(time(NULL));
@@ -217,6 +294,9 @@ int CreateWord(void)
     {
         NewGeneration();
     }
+
+    CreateTileGrid();
+
     int status = CreateDoors();
     if (status == -1)
     {
@@ -226,27 +306,38 @@ int CreateWord(void)
     clock_t end = clock();
 
     printf("%f\n", ((double)end - start) / CLOCKS_PER_SEC);
-    // Skickar tillbaka den färdiga kartan
     return 1;
 }
-
 void PrintMap(void)
 {
+
     for (int y = 0; y < _height; y++)
     {
         for (int x = 0; x < _width; x++)
         {
-            if (grid[y][x] == TILE_FLOOR)
+            if (tileGrid[y][x].type == TILE_FLOOR)
             {
                 DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
             }
-            else if (grid[y][x] == TILE_END)
+            else if (tileGrid[y][x].type == TILE_END)
             {
-                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, YELLOW);
+                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
+
+                //*16 is for sprite size
+                Rectangle pos = {.x = x * tileSize, .y = y * tileSize, .height = tileSize, .width = tileSize};
+                Rectangle src = {.x = 5 * 16, .y = 3 * 16, .height = 16, .width = 16};
+
+                DrawTexturePro(tilemap1, src, pos, (Vector2){0}, 0.0f, RAYWHITE);
             }
-            else if (grid[y][x] == TILE_START)
+            else if (tileGrid[y][x].type == TILE_START)
             {
-                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, ORANGE);
+                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
+
+                //*16 is for sprite size
+                Rectangle pos = {.x = x * tileSize, .y = y * tileSize, .height = tileSize, .width = tileSize};
+                Rectangle src = {.x = 5 * 16, .y = 3 * 16, .height = 16, .width = 16};
+
+                DrawTexturePro(tilemap1, src, pos, (Vector2){0}, 0.0f, RAYWHITE);
             }
         }
     }

@@ -1,4 +1,18 @@
-#include "common.h"
+typedef enum TileType_e
+{
+    TILE_FLOOR,
+    TILE_WALL,
+    TILE_START,
+    TILE_END,
+    TILE_BEDROCK
+} Tile_Type_e;
+
+typedef struct Tile_t
+{
+    int neighbours;
+    int hp;
+    Tile_Type_e type;
+} Tile_t;
 
 typedef enum
 {

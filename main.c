@@ -1,15 +1,9 @@
 #include "common.h"
-
-const int tileSize = 10;
+#include "globals.c"
 
 #include "worldgen.c"
 #include "player.c"
 #include "menu.c"
-
-const int ScreenHeight = 900;
-const int ScreenWidth = 1600;
-
-Game_State_e state = GameStateMenu;
 
 void LevelDone(Player_t *player)
 {
@@ -42,11 +36,16 @@ int main(void)
     Camera2D camera = {0};
     camera.offset = (Vector2){ScreenWidth / 2.0f, ScreenHeight / 2.0f};
     camera.rotation = 0.0f;
-    camera.zoom = 2.5f;
+    camera.zoom = 1.0f;
     camera.target = player.position;
     NewWorld(&player);
     SetTargetFPS(60);
     InitWindow(ScreenWidth, ScreenHeight, "MineHero");
+
+    tilemap1 = LoadTexture("./Tileset1.png");
+    tilemap2 = LoadTexture("./Tileset2.png");
+
+    SetTextureFilter(tilemap1, TEXTURE_FILTER_POINT);
 
     // Ritar ut kartan
     // Dev_PrintMap();
@@ -94,6 +93,8 @@ int main(void)
         }
 
         EndMode2D();
+        // DrawText(TextFormat("Camera X: %.2f\tY: %.2f", camera.target.x, camera.target.y), 8, 8, 16, WHITE);
+        // DrawText(TextFormat("Camera X: %.2f\tY: %.2f", camera.offset.x, camera.offset.y), 8, 32, 16, WHITE);
         clock_t drawEnd = clock();
         EndDrawing();
 
