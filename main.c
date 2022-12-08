@@ -29,6 +29,27 @@ void NewWorld(Player_t *player)
     player->position = _start;
 }
 
+void InitTextures(void)
+{
+    for (int y = 0; y < 7; y++)
+    {
+        for (int x = 0; x < 7; x++)
+        {
+            tileset1[x + y * 7] = (Rectangle){.height = 16, .width = 16, .x = x * 16, .y = y * 16};
+        }
+    }
+    for (int y = 0; y < 11; y++)
+    {
+        for (int x = 0; x < 7; x++)
+        {
+            tileset2[x + y * 11] = (Rectangle){.height = 16, .width = 16, .x = x * 16, .y = y * 16};
+        }
+    }
+
+    //wallTileset[0b00000111] = 1;
+    //wallTileset[0b00011000] = 10;
+}
+
 int main(void)
 {
     Player_t player = {.dmg = 1, .hp = 100, .position = (Vector2){ScreenWidth / 2.0f, ScreenHeight / 2.0f}};
@@ -81,7 +102,7 @@ int main(void)
         switch (state)
         {
         case GameStateGame:
-            PrintMap();
+            DrawMap();
             DrawPlayer(&player);
             break;
         case GameStateMenu:

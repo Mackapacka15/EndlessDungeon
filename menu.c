@@ -22,17 +22,17 @@ int CreateButton(Vector2 position, int width, int height, char *text, int fontsi
 
 void UpdateAndDrawButtons(Player_t *player, Game_State_e *state, Vector2 mousePos)
 {
-    if (CreateButton((Vector2){0, 0}, 75, 20, "Next Level", 10, mousePos))
+    if (CreateButton((Vector2){0, 0}, 225, 60, "Next Level", 30, mousePos))
     {
         *state = GameStateInnitLevel;
     }
 
-    if (CreateButton((Vector2){100, 0}, 75, 20, "Upgrade DMG", 10, mousePos) == 1)
+    if (CreateButton((Vector2){300, 0}, 225, 60, "Upgrade DMG", 30, mousePos) == 1)
     {
         player->dmg += 1;
         *state = GameStateInnitLevel;
     }
-    if (CreateButton((Vector2){-100, 0}, 75, 20, "Upgrade HP", 10, mousePos) == 1)
+    if (CreateButton((Vector2){-300, 0}, 225, 60, "Upgrade HP", 30, mousePos) == 1)
     {
         player->hp += 25;
         *state = GameStateInnitLevel;

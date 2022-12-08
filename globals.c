@@ -11,3 +11,8 @@ Game_State_e state = GameStateGame;
 
 Texture2D tilemap1;
 Texture2D tilemap2;
+
+Rectangle tileset1[49];
+Rectangle tileset2[77];
+
+Texture2D *wallTileset[256];

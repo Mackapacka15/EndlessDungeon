@@ -109,9 +109,9 @@ void NewGeneration(void)
             // Kollar alla tiles i ett 3x3 grid
             for (int heightChange = -1; heightChange <= 1; heightChange++)
             {
-                for (int witdhChange = -1; witdhChange <= 1; witdhChange++)
+                for (int widthChange = -1; widthChange <= 1; widthChange++)
                 {
-                    if (grid[y + heightChange][x + witdhChange] != TILE_FLOOR)
+                    if (grid[y + heightChange][x + widthChange] != TILE_FLOOR)
                     {
                         adjTilesCount++;
                     }
@@ -120,16 +120,16 @@ void NewGeneration(void)
             // Kollar alla tiles i ett 5x5 grid
             for (int heightChange = -2; heightChange <= 2; heightChange++)
             {
-                for (int witdhChange = -2; witdhChange <= 2; witdhChange++)
+                for (int widthChange = -2; widthChange <= 2; widthChange++)
                 {
-                    if (grid[y + heightChange][x + witdhChange] != TILE_FLOOR)
+                    if (grid[y + heightChange][x + widthChange] != TILE_FLOOR)
                     {
                         adjTilesCount2++;
                     }
                 }
             }
             // Finns det tillräckligt många väggar intill så byt sig själv till vägg
-            //Ändrar på temp grid för att beräkningar som kommer senare ska göras på samma grid
+            // Ändrar på temp grid för att beräkningar som kommer senare ska göras på samma grid
             if (adjTilesCount >= maxAdjTiles || adjTilesCount2 >= maxAdjTiles2)
             {
                 gridTemp[y][x] = TILE_WALL;
@@ -161,10 +161,10 @@ int CreateDoors(void)
         y = rand() % _height;
         x = rand() % _width;
 
-        if (grid[y][x] == TILE_FLOOR)
+        if (tileGrid[y][x].type == TILE_FLOOR)
         {
             puts("Door");
-            grid[y][x] = TILE_START;
+            tileGrid[y][x].type = TILE_START;
             _start = (Vector2){x * tileSize + (tileSize / 2), y * tileSize + (tileSize / 2)};
             done = 1;
         }
@@ -178,12 +178,12 @@ int CreateDoors(void)
     done = 0;
     while (done == 0)
     {
-        y = rand() % _width;
-        x = rand() % _height;
+        y = rand() % _height;
+        x = rand() % _width;
 
-        if (grid[y][x] == TILE_FLOOR && grid[y][x] != TILE_START)
+        if (tileGrid[y][x].type == TILE_FLOOR && tileGrid[y][x].type != TILE_START)
         {
-            grid[y][x] = TILE_END;
+            tileGrid[y][x].type = TILE_END;
             _end = (Vector2){x * tileSize + (tileSize / 2), y * tileSize + (tileSize / 2)};
             done = 1;
         }
@@ -198,6 +198,62 @@ int CreateDoors(void)
 
     printf("%d\n", tries);
     return 1;
+}
+
+void UpdateNeighbours(int gridX, int gridY)
+{
+    tileGrid[gridY][gridX].neighbours = 0;
+
+    if (tileGrid[gridY - 1][gridX - 1].type == TILE_WALL || tileGrid[gridY - 1][gridX - 1].type == TILE_BEDROCK)
+    {
+        tileGrid[gridY][gridX].neighbours = tileGrid[gridY][gridX].neighbours | 0b10000000;
+    }
+
+    if (tileGrid[gridY - 1][gridX].type == TILE_WALL || tileGrid[gridY - 1][gridX].type == TILE_BEDROCK)
+    {
+        tileGrid[gridY][gridX].neighbours = tileGrid[gridY][gridX].neighbours | 0b01000000;
+    }
+
+    if (tileGrid[gridY - 1][gridX + 1].type == TILE_WALL || tileGrid[gridY - 1][gridX + 1].type == TILE_BEDROCK)
+    {
+        tileGrid[gridY][gridX].neighbours = tileGrid[gridY][gridX].neighbours | 0b00100000;
+    }
+
+    if (tileGrid[gridY][gridX - 1].type == TILE_WALL || tileGrid[gridY][gridX - 1].type == TILE_BEDROCK)
+    {
+        tileGrid[gridY][gridX].neighbours = tileGrid[gridY][gridX].neighbours | 0b00010000;
+    }
+
+    if (tileGrid[gridY][gridX + 1].type == TILE_WALL || tileGrid[gridY][gridX + 1].type == TILE_BEDROCK)
+    {
+        tileGrid[gridY][gridX].neighbours = tileGrid[gridY][gridX].neighbours | 0b00001000;
+    }
+
+    if (tileGrid[gridY + 1][gridX - 1].type == TILE_WALL || tileGrid[gridY + 1][gridX - 1].type == TILE_BEDROCK)
+    {
+        tileGrid[gridY][gridX].neighbours = tileGrid[gridY][gridX].neighbours | 0b00000100;
+    }
+
+    if (tileGrid[gridY + 1][gridX].type == TILE_WALL || tileGrid[gridY + 1][gridX].type == TILE_BEDROCK)
+    {
+        tileGrid[gridY][gridX].neighbours = tileGrid[gridY][gridX].neighbours | 0b00000010;
+    }
+
+    if (tileGrid[gridY + 1][gridX + 1].type == TILE_WALL || tileGrid[gridY + 1][gridX + 1].type == TILE_BEDROCK)
+    {
+        tileGrid[gridY][gridX].neighbours = tileGrid[gridY][gridX].neighbours | 0b00000001;
+    }
+}
+
+void CheckNeighbours(void)
+{
+    for (int y = 0; y < _height; y++)
+    {
+        for (int x = 0; x < _width; x++)
+        {
+            UpdateNeighbours(x, y);
+        }
+    }
 }
 
 void CreateTileGrid()
@@ -224,61 +280,7 @@ void CreateTileGrid()
             tileGrid[y][x] = (Tile_t){.type = grid[y][x], .hp = hp};
         }
     }
-}
-
-void CheckNeighbours(void)
-{
-    for (int y = 0; y < _height; y++)
-    {
-        for (int x = 0; x < _width; x++)
-        {
-            tileGrid[y][x].neighbours = 0;
-
-            if (tileGrid[y - 1][x - 1].type == TILE_WALL || tileGrid[y - 1][x - 1].type == TILE_BEDROCK)
-            {
-                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b10000000;
-            }
-
-            if (tileGrid[y - 1][x].type == TILE_WALL || tileGrid[y - 1][x].type == TILE_BEDROCK)
-            {
-                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b01000000;
-            }
-
-            if (tileGrid[y - 1][x + 1].type == TILE_WALL || tileGrid[y - 1][x + 1].type == TILE_BEDROCK)
-            {
-                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00100000;
-            }
-
-            if (tileGrid[y][x - 1].type == TILE_WALL || tileGrid[y][x - 1].type == TILE_BEDROCK)
-            {
-                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00010000;
-            }
-
-            if (tileGrid[y][x + 1].type == TILE_WALL || tileGrid[y][x + 1].type == TILE_BEDROCK)
-            {
-                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00001000;
-            }
-
-            if (tileGrid[y + 1][x - 1].type == TILE_WALL || tileGrid[y + 1][x - 1].type == TILE_BEDROCK)
-            {
-                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00000100;
-            }
-
-            if (tileGrid[y + 1][x].type == TILE_WALL || tileGrid[y + 1][x].type == TILE_BEDROCK)
-            {
-                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00000010;
-            }
-
-            if (tileGrid[y + 1][x + 1].type == TILE_WALL || tileGrid[y + 1][x + 1].type == TILE_BEDROCK)
-            {
-                tileGrid[y][x].neighbours = tileGrid[y][x].neighbours | 0b00000001;
-            }
-
-            // 0b00110000
-            // 0b11010000
-            // 0b11100000
-        }
-    }
+    CheckNeighbours();
 }
 
 int CreateWord(void)
@@ -308,7 +310,8 @@ int CreateWord(void)
     printf("%f\n", ((double)end - start) / CLOCKS_PER_SEC);
     return 1;
 }
-void PrintMap(void)
+
+void DrawMap(void)
 {
 
     for (int y = 0; y < _height; y++)
@@ -338,6 +341,10 @@ void PrintMap(void)
                 Rectangle src = {.x = 5 * 16, .y = 3 * 16, .height = 16, .width = 16};
 
                 DrawTexturePro(tilemap1, src, pos, (Vector2){0}, 0.0f, RAYWHITE);
+            }
+            else
+            {
+                //DrawTexture(*wallTileset[tileGrid[y][x].neighbours], x, y, RAYWHITE);
             }
         }
     }
