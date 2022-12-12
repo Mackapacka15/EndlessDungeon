@@ -28,9 +28,9 @@ Vector2 CheckCollisionWall(int gridX, int gridY, Vector2 nextPos, Player_t *p)
                 if (CheckCollisionRecs(tile, newPlayer))
                 {
 
+                    // Albins Kod
                     if (playerPos.y >= tile.y + tile.height && (playerPos.x < tile.x + tile.width && playerPos.x + playerSize > tile.x))
                     {
-                        puts("Col Top");
                         nextPos.y = fmax(0, nextPos.y);
                     }
 
@@ -48,11 +48,12 @@ Vector2 CheckCollisionWall(int gridX, int gridY, Vector2 nextPos, Player_t *p)
                     {
                         nextPos.x = fmin(0, nextPos.x);
                     }
+                    // Albins kod slut
 
-                    // if (widthChange)
-                    // {
-                    //     nextPos.x = widthChange < 0 ? fmax(0, nextPos.x) : fmin(0, nextPos.x);
-                    // }
+                    //  if (widthChange)
+                    //  {
+                    //      nextPos.x = widthChange < 0 ? fmax(0, nextPos.x) : fmin(0, nextPos.x);
+                    //  }
 
                     // if (heightChange)
                     // {

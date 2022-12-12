@@ -311,6 +311,15 @@ int CreateWord(void)
     return 1;
 }
 
+Rectangle GetTileMapRect(int posX, int posY, int tilemapWidth)
+{
+    return (Rectangle){
+        .y = (int)(posY * 16),
+        .x = (int)(posX * 16),
+        .width = 16,
+        .height = 16};
+}
+
 void DrawMap(void)
 {
 
@@ -318,6 +327,7 @@ void DrawMap(void)
     {
         for (int x = 0; x < _width; x++)
         {
+            Rectangle pos = {.x = x * tileSize, .y = y * tileSize, .height = tileSize, .width = tileSize};
             if (tileGrid[y][x].type == TILE_FLOOR)
             {
                 DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
@@ -327,7 +337,6 @@ void DrawMap(void)
                 DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
 
                 //*16 is for sprite size
-                Rectangle pos = {.x = x * tileSize, .y = y * tileSize, .height = tileSize, .width = tileSize};
                 Rectangle src = {.x = 5 * 16, .y = 3 * 16, .height = 16, .width = 16};
 
                 DrawTexturePro(tilemap1, src, pos, (Vector2){0}, 0.0f, RAYWHITE);
@@ -338,13 +347,12 @@ void DrawMap(void)
 
                 //*16 is for sprite size
                 Rectangle pos = {.x = x * tileSize, .y = y * tileSize, .height = tileSize, .width = tileSize};
-                Rectangle src = {.x = 5 * 16, .y = 3 * 16, .height = 16, .width = 16};
 
-                DrawTexturePro(tilemap1, src, pos, (Vector2){0}, 0.0f, RAYWHITE);
+                DrawTexturePro(tilemap1, GetTileMapRect(5, 3, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
             }
             else
             {
-                //DrawTexture(*wallTileset[tileGrid[y][x].neighbours], x, y, RAYWHITE);
+                DrawTexturePro(tilemap2, wallTileset[tileGrid[y][x].neighbours], pos, (Vector2){0}, 0.0f, RAYWHITE);
             }
         }
     }

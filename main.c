@@ -31,23 +31,64 @@ void NewWorld(Player_t *player)
 
 void InitTextures(void)
 {
-    for (int y = 0; y < 7; y++)
-    {
-        for (int x = 0; x < 7; x++)
-        {
-            tileset1[x + y * 7] = (Rectangle){.height = 16, .width = 16, .x = x * 16, .y = y * 16};
-        }
-    }
-    for (int y = 0; y < 11; y++)
-    {
-        for (int x = 0; x < 7; x++)
-        {
-            tileset2[x + y * 11] = (Rectangle){.height = 16, .width = 16, .x = x * 16, .y = y * 16};
-        }
-    }
 
-    //wallTileset[0b00000111] = 1;
-    //wallTileset[0b00011000] = 10;
+    wallTileset[0b11111111] = GetTileMapRect(-1, -1, tilemap2Width);
+    // Klara
+    // Uppe Höger hörn
+    wallTileset[0b01101000] = GetTileMapRect(3, 1, tilemap2Width);
+    wallTileset[0b00010110] = GetTileMapRect(3, 1, tilemap2Width);
+    wallTileset[0b10010110] = GetTileMapRect(3, 1, tilemap2Width);
+    wallTileset[0b10010111] = GetTileMapRect(3, 1, tilemap2Width);
+    wallTileset[0b10010110] = GetTileMapRect(3, 1, tilemap2Width);
+    wallTileset[0b00010111] = GetTileMapRect(3, 1, tilemap2Width);
+
+    // Uppe Vänster hörn
+    wallTileset[0b00101011] = GetTileMapRect(0, 1, tilemap2Width);
+    wallTileset[0b00001011] = GetTileMapRect(0, 1, tilemap2Width);
+    wallTileset[0b00001111] = GetTileMapRect(0, 1, tilemap2Width);
+    wallTileset[0b00101111] = GetTileMapRect(0, 1, tilemap2Width);
+
+    // Nere Höger hörn
+    wallTileset[0b11110100] = GetTileMapRect(3, 3, tilemap2Width);
+    wallTileset[0b11010100] = GetTileMapRect(3, 3, tilemap2Width);
+    wallTileset[0b11010000] = GetTileMapRect(3, 3, tilemap2Width);
+    wallTileset[0b11110000] = GetTileMapRect(3, 3, tilemap2Width);
+
+    // Nere Vänster hörn
+    wallTileset[0b01101000] = GetTileMapRect(0, 2, tilemap2Width);
+    wallTileset[0b11101000] = GetTileMapRect(0, 2, tilemap2Width);
+    wallTileset[0b11101001] = GetTileMapRect(0, 2, tilemap2Width);
+    wallTileset[0b01101001] = GetTileMapRect(0, 2, tilemap2Width);
+
+    // Nere mitten
+    wallTileset[0b11111000] = GetTileMapRect(1, 2, tilemap2Width);
+    wallTileset[0b11111100] = GetTileMapRect(1, 2, tilemap2Width);
+    wallTileset[0b11111001] = GetTileMapRect(1, 2, tilemap2Width);
+    wallTileset[0b11111101] = GetTileMapRect(1, 2, tilemap2Width);
+
+    // Uppe mitten
+    wallTileset[0b00011111] = GetTileMapRect(1, 1, tilemap2Width);
+    wallTileset[0b00111111] = GetTileMapRect(1, 1, tilemap2Width);
+    wallTileset[0b10011111] = GetTileMapRect(1, 1, tilemap2Width);
+    wallTileset[0b10111111] = GetTileMapRect(1, 1, tilemap2Width);
+
+    // Mitten Höger
+    wallTileset[0b11010110] = GetTileMapRect(3, 2, tilemap2Width);
+    wallTileset[0b11110110] = GetTileMapRect(3, 2, tilemap2Width);
+    wallTileset[0b11010111] = GetTileMapRect(3, 2, tilemap2Width);
+    wallTileset[0b11110111] = GetTileMapRect(3, 2, tilemap2Width);
+
+    // Nere Vänster prick
+    wallTileset[0b11111011] = GetTileMapRect(2, 2, tilemap2Width);
+
+    // Test
+
+    int hej[3][3] = {
+        {1, 1, 1},
+        {1, 9, 1},
+        {0, 1, 1},
+    };
+    // wallTileset[0b00011000] = 10;
 }
 
 int main(void)
@@ -66,6 +107,7 @@ int main(void)
     tilemap1 = LoadTexture("./Tileset1.png");
     tilemap2 = LoadTexture("./Tileset2.png");
 
+    InitTextures();
     SetTextureFilter(tilemap1, TEXTURE_FILTER_POINT);
 
     // Ritar ut kartan

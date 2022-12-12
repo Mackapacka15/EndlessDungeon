@@ -7,12 +7,12 @@ const int playerSize = 32;
 const int ScreenHeight = 900;
 const int ScreenWidth = 1600;
 
+const int tilemap1Width = 112;
+const int tilemap2Width = 176;
+
 Game_State_e state = GameStateGame;
 
 Texture2D tilemap1;
 Texture2D tilemap2;
 
-Rectangle tileset1[49];
-Rectangle tileset2[77];
-
-Texture2D *wallTileset[256];
+Rectangle wallTileset[256];
