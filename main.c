@@ -1,6 +1,7 @@
 #include "common.h"
 #include "globals.c"
 
+#include "spawnStructures.c"
 #include "worldgen.c"
 #include "player.c"
 #include "menu.c"
@@ -139,7 +140,7 @@ int main(void)
         // Draw
         clock_t drawStart = clock();
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(backgroundColor);
         BeginMode2D(camera);
         switch (state)
         {

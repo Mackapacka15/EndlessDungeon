@@ -1,28 +1,5 @@
 #include "common.h"
 
-const int _height = 90;
-const int _width = 160;
-
-// Chans att bli en vägg från början
-const int wallChanse = 31;
-
-// Hur många tiles som behöver vara väggar för att byta sig själv 3x3
-const int maxAdjTiles = 4;
-
-// Hur många tiles som behöver vara väggar för att byta sig själv 5x5
-const int maxAdjTiles2 = 15;
-
-// Hur många generationer av kartan ska genereras
-const int generations = 5;
-
-int grid[_height][_width];
-int gridTemp[_height][_width];
-
-Tile_t tileGrid[_height][_width];
-
-Vector2 _start;
-Vector2 _end;
-
 // Ritar ut kartan i konsollen
 void Dev_PrintMap(void)
 {
@@ -161,17 +138,20 @@ int CreateDoors(void)
         y = rand() % _height;
         x = rand() % _width;
 
-        if (tileGrid[y][x].type == TILE_FLOOR)
+        if (CheckValidPlacement(x, y, 5, 5))
         {
-            puts("Door");
-            tileGrid[y][x].type = TILE_START;
+            SpawnDoorStructure(x, y, 1);
+            x += 2;
+            y += 2;
+
             _start = (Vector2){x * tileSize + (tileSize / 2), y * tileSize + (tileSize / 2)};
+
+            tries++;
             done = 1;
         }
 
         if (tries > 1000)
         {
-            puts("Fail");
             return -1; // failed to ever create Entrance
         }
     }
@@ -181,10 +161,15 @@ int CreateDoors(void)
         y = rand() % _height;
         x = rand() % _width;
 
-        if (tileGrid[y][x].type == TILE_FLOOR && tileGrid[y][x].type != TILE_START)
+        if (CheckValidPlacement(x, y, 5, 5))
         {
-            tileGrid[y][x].type = TILE_END;
+            SpawnDoorStructure(x, y, 1);
+            x += 2;
+            y += 2;
+
             _end = (Vector2){x * tileSize + (tileSize / 2), y * tileSize + (tileSize / 2)};
+
+            tries++;
             done = 1;
         }
 
@@ -280,7 +265,6 @@ void CreateTileGrid()
             tileGrid[y][x] = (Tile_t){.type = grid[y][x], .hp = hp};
         }
     }
-    CheckNeighbours();
 }
 
 int CreateWord(void)
@@ -304,6 +288,8 @@ int CreateWord(void)
     {
         return 0;
     }
+
+    CheckNeighbours();
 
     clock_t end = clock();
 
@@ -330,11 +316,14 @@ void DrawMap(void)
             Rectangle pos = {.x = x * tileSize, .y = y * tileSize, .height = tileSize, .width = tileSize};
             if (tileGrid[y][x].type == TILE_FLOOR)
             {
-                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
+
+                //*16 is for sprite size
+
+                DrawTexturePro(tilemap1, GetTileMapRect(0, 0, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
             }
             else if (tileGrid[y][x].type == TILE_END)
             {
-                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
+                DrawTexturePro(tilemap1, GetTileMapRect(0, 0, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
 
                 //*16 is for sprite size
                 Rectangle src = {.x = 5 * 16, .y = 3 * 16, .height = 16, .width = 16};
@@ -343,13 +332,15 @@ void DrawMap(void)
             }
             else if (tileGrid[y][x].type == TILE_START)
             {
-                DrawRectangle(x * tileSize, y * tileSize, tileSize, tileSize, GREEN);
-
-                //*16 is for sprite size
-                Rectangle pos = {.x = x * tileSize, .y = y * tileSize, .height = tileSize, .width = tileSize};
+                DrawTexturePro(tilemap1, GetTileMapRect(0, 0, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
 
                 DrawTexturePro(tilemap1, GetTileMapRect(5, 3, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
             }
+            else if (tileGrid[y][x].type == TILE_BEDROCK)
+            {
+                DrawTexturePro(tilemap1, GetTileMapRect(1, 2, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
+            }
+
             else
             {
                 DrawTexturePro(tilemap2, wallTileset[tileGrid[y][x].neighbours], pos, (Vector2){0}, 0.0f, RAYWHITE);
