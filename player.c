@@ -78,7 +78,7 @@ int MineBlock(int gridX, int gridY, int dmg)
     {
         tileGrid[gridY][gridX].hp -= dmg;
 
-        if (tileGrid[gridY][gridX].hp == 0)
+        if (tileGrid[gridY][gridX].hp <= 0)
         {
             tileGrid[gridY][gridX].type = TILE_FLOOR;
 
