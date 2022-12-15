@@ -138,7 +138,7 @@ int CreateDoors(void)
         y = rand() % _height;
         x = rand() % _width;
 
-        if (CheckValidPlacement(x, y, 5, 5))
+        if (CheckValidPlacement(x, y, 5, 4))
         {
             SpawnDoorStructure(x, y, 1);
             x += 2;
@@ -161,9 +161,9 @@ int CreateDoors(void)
         y = rand() % _height;
         x = rand() % _width;
 
-        if (CheckValidPlacement(x, y, 5, 5))
+        if (CheckValidPlacement(x, y, 5, 4))
         {
-            SpawnDoorStructure(x, y, 1);
+            SpawnDoorStructure(x, y, 0);
             x += 2;
             y += 2;
 
@@ -308,42 +308,19 @@ Rectangle GetTileMapRect(int posX, int posY, int tilemapWidth)
 
 void DrawMap(void)
 {
-
     for (int y = 0; y < _height; y++)
     {
         for (int x = 0; x < _width; x++)
         {
             Rectangle pos = {.x = x * tileSize, .y = y * tileSize, .height = tileSize, .width = tileSize};
-            if (tileGrid[y][x].type == TILE_FLOOR)
-            {
 
-                //*16 is for sprite size
-
-                DrawTexturePro(tilemap1, GetTileMapRect(0, 0, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
-            }
-            else if (tileGrid[y][x].type == TILE_END)
-            {
-                DrawTexturePro(tilemap1, GetTileMapRect(0, 0, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
-
-                //*16 is for sprite size
-                Rectangle src = {.x = 5 * 16, .y = 3 * 16, .height = 16, .width = 16};
-
-                DrawTexturePro(tilemap1, src, pos, (Vector2){0}, 0.0f, RAYWHITE);
-            }
-            else if (tileGrid[y][x].type == TILE_START)
-            {
-                DrawTexturePro(tilemap1, GetTileMapRect(0, 0, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
-
-                DrawTexturePro(tilemap1, GetTileMapRect(5, 3, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
-            }
-            else if (tileGrid[y][x].type == TILE_BEDROCK)
-            {
-                DrawTexturePro(tilemap1, GetTileMapRect(1, 2, tilemap1Width), pos, (Vector2){0}, 0.0f, RAYWHITE);
-            }
-
-            else
+            if (tileGrid[y][x].type == TILE_WALL)
             {
                 DrawTexturePro(tilemap2, wallTileset[tileGrid[y][x].neighbours], pos, (Vector2){0}, 0.0f, RAYWHITE);
+            }
+            else
+            {
+                DrawTexturePro(tilemap1, decorationTiles[tileGrid[y][x].type], pos, (Vector2){0}, 0.0f, RAYWHITE);
             }
         }
     }

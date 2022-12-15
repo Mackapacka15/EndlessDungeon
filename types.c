@@ -4,7 +4,10 @@ typedef enum TileType_e
     TILE_WALL,
     TILE_START,
     TILE_END,
-    TILE_BEDROCK
+    TILE_BEDROCK,
+    TILE_CHEST,
+    TILE_DECORATION_SKELETON,
+    TILE_DECORATION_MEDAL
 } Tile_Type_e;
 
 typedef struct Tile_t

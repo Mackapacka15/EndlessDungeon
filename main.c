@@ -30,7 +30,17 @@ void NewWorld(Player_t *player)
     player->position = _start;
 }
 
-void InitTextures(void)
+void InitDecorationTextures(void)
+{
+    decorationTiles[TILE_FLOOR] = GetTileMapRect(0, 0, tilemap1Width);
+    decorationTiles[TILE_END] = GetTileMapRect(5, 3, tilemap1Width);
+    decorationTiles[TILE_START] = GetTileMapRect(5, 3, tilemap1Width);
+    decorationTiles[TILE_BEDROCK] = GetTileMapRect(1, 2, tilemap1Width);
+    decorationTiles[TILE_DECORATION_SKELETON] = GetTileMapRect(0, 2, tilemap1Width);
+    decorationTiles[TILE_DECORATION_MEDAL] = GetTileMapRect(5, 5, tilemap1Width);
+}
+
+void InitWallTextures(void)
 {
 
     wallTileset[0b11111111] = GetTileMapRect(-1, -1, tilemap2Width);
@@ -108,7 +118,8 @@ int main(void)
     tilemap1 = LoadTexture("./Tileset1.png");
     tilemap2 = LoadTexture("./Tileset2.png");
 
-    InitTextures();
+    InitWallTextures();
+    InitDecorationTextures();
     SetTextureFilter(tilemap1, TEXTURE_FILTER_POINT);
 
     // Ritar ut kartan

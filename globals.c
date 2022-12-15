@@ -40,4 +40,6 @@ Vector2 _end;
 Texture2D tilemap1;
 Texture2D tilemap2;
 
+Rectangle decorationTiles[49];
+
 Rectangle wallTileset[256];
