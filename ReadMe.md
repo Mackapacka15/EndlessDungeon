@@ -6,3 +6,7 @@ This game is a topdown mining / dungeon game. You use W, A, S, D to move and SPA
 
 ## Run the game
     ./build.sh
+#### Known bugs:
+Collision is a little broken. Sometimes halts movement. To fix this, relese A and or S key.
+
+Some sprites are mssing. There are not enough tiles in the tileset to fill all possible tiles. For now they are just black walls. 
